@@ -1,8 +1,8 @@
 /**
  * Multi-Light Control Card for Home Assistant
- * Version 1.0.0
+ * Version 1.0.1
  */
-const CARD_VERSION = "1.0.0";
+const CARD_VERSION = "1.0.1";
 const DEFAULT_COLORS = Object.freeze([
   { name: "Warm", color: "#ffb46b", icon: "mdi:weather-sunset" },
   { name: "White", color: "#ffffff", icon: "mdi:lightbulb-on" },
@@ -210,6 +210,7 @@ class MultiLightControlCardEditor extends HTMLElement {
     this.attachShadow({ mode: "open" });
     this._config = { ...DEFAULTS, colors: DEFAULT_COLORS.map((item) => ({ ...item })) };
     this._entitySignature = "";
+    this._entityDrafts = [];
   }
 
   setConfig(config) {
@@ -218,6 +219,7 @@ class MultiLightControlCardEditor extends HTMLElement {
       entities: normalizeEntities(config?.entities),
       colors: Array.isArray(config?.colors) ? config.colors.map((item) => ({ ...item })) : DEFAULT_COLORS.map((item) => ({ ...item })),
     };
+    this._entityDrafts = [...this._config.entities];
     this._render();
   }
 
@@ -244,7 +246,9 @@ class MultiLightControlCardEditor extends HTMLElement {
         label{display:block;margin:10px 0;color:var(--secondary-text-color)}input,textarea{display:block;width:100%;box-sizing:border-box;
         margin-top:5px;padding:11px;border:1px solid var(--divider-color);border-radius:9px;color:var(--primary-text-color);
         background:var(--secondary-background-color)}textarea{min-height:105px;resize:vertical}.hint{font-size:12px;color:var(--secondary-text-color)}
-        .check{display:flex;align-items:center;gap:9px}.check input{width:auto;margin:0}.preset{display:grid;grid-template-columns:1fr 78px 1fr 42px;
+        .check{display:flex;align-items:center;gap:9px}.check input{width:auto;margin:0}.entity-row{display:grid;
+        grid-template-columns:1fr 42px;gap:8px;align-items:end;margin:8px 0}.entity-row label{margin:0}
+        .preset{display:grid;grid-template-columns:1fr 78px 1fr 42px;
         gap:8px;align-items:end;padding:10px;margin:8px 0;border:1px solid var(--divider-color);border-radius:12px}
         .preset label{margin:0}.preset input[type=color]{height:42px;padding:3px}.delete,.add{border:1px solid var(--primary-color);
         border-radius:9px;padding:10px;background:transparent;color:var(--primary-color);cursor:pointer}.delete{color:var(--error-color,#ff6877);
@@ -253,8 +257,14 @@ class MultiLightControlCardEditor extends HTMLElement {
       </style>
       <h3>Lights</h3>
       <label>Card title<input data-key="title" value="${esc(this._config.title)}" placeholder="Lights"></label>
-      <label>Light entities<textarea data-key="entities" placeholder="light.bedroom&#10;light.bedside_lamp">${esc(this._config.entities.join("\n"))}</textarea></label>
-      <div class="hint">Enter one light entity ID per line. All selected lights can be controlled together.</div>
+      <div class="entity-list">${(this._entityDrafts.length ? this._entityDrafts : [""]).map((entityId,index)=>`
+        <div class="entity-row" data-entity-index="${index}">
+          <label>Light ${index + 1}<input data-entity value="${esc(entityId)}" placeholder="light.example_light"
+          autocomplete="off" spellcheck="false"></label>
+          <button class="delete" data-delete-entity="${index}" title="Remove light">×</button>
+        </div>`).join("")}</div>
+      <button class="add" data-action="add-light">＋ Add light</button>
+      <div class="hint">Type or paste one light entity ID in each row. All selected lights can be controlled together.</div>
       <label class="check"><input type="checkbox" data-key="show_brightness" ${this._config.show_brightness?"checked":""}>Show all-light brightness</label>
       <label class="check"><input type="checkbox" data-key="show_individual" ${this._config.show_individual?"checked":""}>Show individual light controls</label>
       <h3>Custom colour buttons</h3>
@@ -275,10 +285,26 @@ class MultiLightControlCardEditor extends HTMLElement {
       const key = input.dataset.key;
       this._config = {
         ...this._config,
-        [key]: input.type === "checkbox" ? input.checked : key === "entities" ? normalizeEntities(input.value) : input.value,
+        [key]: input.type === "checkbox" ? input.checked : input.value,
       };
       this._emit();
     }));
+    this.shadowRoot.querySelectorAll("[data-entity]").forEach((input) => input.addEventListener("change", () => {
+      const index = Number(input.closest("[data-entity-index]").dataset.entityIndex);
+      this._entityDrafts[index] = input.value.trim();
+      this._config = { ...this._config, entities: normalizeEntities(this._entityDrafts) };
+      this._emit();
+    }));
+    this.shadowRoot.querySelectorAll("[data-delete-entity]").forEach((button) => button.addEventListener("click", () => {
+      this._entityDrafts.splice(Number(button.dataset.deleteEntity), 1);
+      this._config = { ...this._config, entities: normalizeEntities(this._entityDrafts) };
+      this._emit();
+      this._render();
+    }));
+    this.shadowRoot.querySelector('[data-action="add-light"]')?.addEventListener("click", () => {
+      this._entityDrafts.push("");
+      this._render();
+    });
     this.shadowRoot.querySelectorAll("[data-preset]").forEach((input) => input.addEventListener("change", () => {
       const row = input.closest("[data-index]");
       const index = Number(row.dataset.index);
