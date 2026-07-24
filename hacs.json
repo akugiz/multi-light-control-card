@@ -1,0 +1,7 @@
+{
+  "name": "Multi-Light Control Card",
+  "content_in_root": true,
+  "filename": "multi-light-control-card.js",
+  "render_readme": true,
+  "homeassistant": "2024.8.0"
+}
