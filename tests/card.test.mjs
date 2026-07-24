@@ -69,8 +69,16 @@ assert.equal(editorRenders, 1, "state-only changes must not rebuild the editor")
 
 const rowEditor = new Editor();
 rowEditor.setConfig({ entities: ["light.example_ceiling", "light.example_bedside"] });
+rowEditor.hass = {
+  states: {
+    "light.example_ceiling": { entity_id: "light.example_ceiling", attributes: { friendly_name: "Ceiling" } },
+    "sensor.example_temperature": { entity_id: "sensor.example_temperature", attributes: { friendly_name: "Temperature" } },
+  },
+};
 assert.match(rowEditor.shadowRoot.innerHTML, /Light 1/);
 assert.match(rowEditor.shadowRoot.innerHTML, /Light 2/);
 assert.match(rowEditor.shadowRoot.innerHTML, /data-action="add-light"/);
+assert.match(rowEditor.shadowRoot.innerHTML, /light\.example_ceiling/);
+assert.doesNotMatch(rowEditor.shadowRoot.innerHTML, /sensor\.example_temperature/);
 
 console.log("Multi-Light Control Card tests passed.");
