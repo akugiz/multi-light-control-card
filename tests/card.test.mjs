@@ -67,4 +67,10 @@ editor.hass = { states: { "light.example_ceiling": { state: "off" } } };
 editor.hass = { states: { "light.example_ceiling": { state: "on" } } };
 assert.equal(editorRenders, 1, "state-only changes must not rebuild the editor");
 
+const rowEditor = new Editor();
+rowEditor.setConfig({ entities: ["light.example_ceiling", "light.example_bedside"] });
+assert.match(rowEditor.shadowRoot.innerHTML, /Light 1/);
+assert.match(rowEditor.shadowRoot.innerHTML, /Light 2/);
+assert.match(rowEditor.shadowRoot.innerHTML, /data-action="add-light"/);
+
 console.log("Multi-Light Control Card tests passed.");
