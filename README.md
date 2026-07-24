@@ -32,6 +32,7 @@ place and displays your own named colour presets directly on the dashboard.
 Edit a dashboard, choose **Add card**, and search for **Multi-Light Control Card**.
 In the visual editor, paste a light entity ID into the first light row. Use
 **Add light** to create more rows, and use the remove button to delete a light.
+While typing, the editor suggests matching `light.*` entities from Home Assistant.
 
 ```yaml
 type: custom:multi-light-control-card
