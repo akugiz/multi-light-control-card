@@ -30,7 +30,8 @@ place and displays your own named colour presets directly on the dashboard.
 ## Add the card
 
 Edit a dashboard, choose **Add card**, and search for **Multi-Light Control Card**.
-In the visual editor, paste one light entity ID per line.
+In the visual editor, paste a light entity ID into the first light row. Use
+**Add light** to create more rows, and use the remove button to delete a light.
 
 ```yaml
 type: custom:multi-light-control-card
