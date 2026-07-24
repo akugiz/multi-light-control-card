@@ -1,6 +1,6 @@
 {
   "name": "multi-light-control-card",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A Home Assistant card for controlling multiple lights and custom colour presets.",
   "private": true,
   "type": "module",
