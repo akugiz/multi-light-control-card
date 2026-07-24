@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2
+
+- Add autocomplete suggestions containing only Home Assistant light entities.
+- Suggestions show the entity ID and its friendly light name.
+
 ## 1.0.1
 
 - Replace the multi-line entity box with a separate row for every light.
