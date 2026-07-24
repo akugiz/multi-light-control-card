@@ -1,8 +1,8 @@
 /**
  * Multi-Light Control Card for Home Assistant
- * Version 1.0.1
+ * Version 1.0.2
  */
-const CARD_VERSION = "1.0.1";
+const CARD_VERSION = "1.0.2";
 const DEFAULT_COLORS = Object.freeze([
   { name: "Warm", color: "#ffb46b", icon: "mdi:weather-sunset" },
   { name: "White", color: "#ffffff", icon: "mdi:lightbulb-on" },
@@ -240,6 +240,10 @@ class MultiLightControlCardEditor extends HTMLElement {
 
   _render() {
     if (!this.shadowRoot) return;
+    const lightSuggestions = Object.values(this._hass?.states || {})
+      .filter((state) => state.entity_id?.startsWith("light."))
+      .sort((a, b) => String(a.attributes?.friendly_name || a.entity_id)
+        .localeCompare(String(b.attributes?.friendly_name || b.entity_id)));
     this.shadowRoot.innerHTML = `
       <style>
         :host{display:block;padding:8px;color:var(--primary-text-color)}h3{margin:16px 0 8px}
@@ -259,10 +263,12 @@ class MultiLightControlCardEditor extends HTMLElement {
       <label>Card title<input data-key="title" value="${esc(this._config.title)}" placeholder="Lights"></label>
       <div class="entity-list">${(this._entityDrafts.length ? this._entityDrafts : [""]).map((entityId,index)=>`
         <div class="entity-row" data-entity-index="${index}">
-          <label>Light ${index + 1}<input data-entity value="${esc(entityId)}" placeholder="light.example_light"
+          <label>Light ${index + 1}<input data-entity list="light-entity-suggestions" value="${esc(entityId)}" placeholder="Start typing a light name or entity ID"
           autocomplete="off" spellcheck="false"></label>
           <button class="delete" data-delete-entity="${index}" title="Remove light">×</button>
         </div>`).join("")}</div>
+      <datalist id="light-entity-suggestions">${lightSuggestions.map((state) =>
+        `<option value="${esc(state.entity_id)}">${esc(state.attributes?.friendly_name || state.entity_id)}</option>`).join("")}</datalist>
       <button class="add" data-action="add-light">＋ Add light</button>
       <div class="hint">Type or paste one light entity ID in each row. All selected lights can be controlled together.</div>
       <label class="check"><input type="checkbox" data-key="show_brightness" ${this._config.show_brightness?"checked":""}>Show all-light brightness</label>
