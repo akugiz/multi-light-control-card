@@ -1,0 +1,11 @@
+{
+  "name": "multi-light-control-card",
+  "version": "1.0.0",
+  "description": "A Home Assistant card for controlling multiple lights and custom colour presets.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check multi-light-control-card.js",
+    "test": "node tests/card.test.mjs"
+  }
+}
