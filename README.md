@@ -3,6 +3,9 @@
 A standalone Home Assistant dashboard card that controls several lights from one
 place and displays your own named colour presets directly on the dashboard.
 
+![Multi-Light Control Card](photo.png)
+![Multi-Light Control Card](photo2.png)
+
 ## Features
 
 - add any number of `light` entity IDs;
